@@ -34,6 +34,11 @@ dependencies {
     // Rate Limiting
     implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
 
+    implementation 'com.theokanning.openai-gpt3-java:client:0.12.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
     // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
