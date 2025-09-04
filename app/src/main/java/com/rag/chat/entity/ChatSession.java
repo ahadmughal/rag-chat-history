@@ -21,6 +21,8 @@ public class ChatSession {
 
     private Boolean active = true;
 
+    private boolean favorite = false;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

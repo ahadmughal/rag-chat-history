@@ -25,3 +25,6 @@ CREATE TABLE api_key (
     owner VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE chat_session
+ADD COLUMN favorite BOOLEAN DEFAULT FALSE;

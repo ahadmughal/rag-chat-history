@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class CreateSessionRequest {
+public class ChatSessionRequest {
     @NotBlank(message = "Session name is mandatory")
     private String sessionName;
 }

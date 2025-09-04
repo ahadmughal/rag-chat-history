@@ -1,7 +1,7 @@
 package com.rag.chat.service.impl;
 
-import com.rag.chat.dto.request.CreateSessionRequest;
-import com.rag.chat.dto.response.CreateSessionResponse;
+import com.rag.chat.dto.request.ChatSessionRequest;
+import com.rag.chat.dto.response.ChatSessionResponse;
 import com.rag.chat.entity.ChatSession;
 import com.rag.chat.mapper.ChatSessionMapper;
 import com.rag.chat.repository.ChatSessionRepository;
@@ -28,7 +28,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
     private ChatSessionMapper chatSessionMapper;
 
     @Override
-    public CreateSessionResponse createSession(CreateSessionRequest request) {
+    public ChatSessionResponse createSession(ChatSessionRequest request) {
         if (request.getSessionName() == null || request.getSessionName().isBlank()) {
             throw new IllegalArgumentException("Session name must not be empty");
         }
@@ -54,7 +54,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
     }
 
     @Override
-    public List<CreateSessionResponse> getAllSessions() {
+    public List<ChatSessionResponse> getAllSessions() {
         List<ChatSession> sessions = chatSessionRepository.findAllByOrderByCreatedAtDesc();
         return sessions.stream()
                 .map(chatSessionMapper::toCreateSessionResponse)
@@ -68,5 +68,16 @@ public class ChatSessionServiceImpl implements ChatSessionService {
             chatSessionRepository.save(session);
             logger.info("Deactivated old session: sessionId={}", session.getId());
         }
+    }
+    @Override
+    public ChatSessionResponse markAsFavorite(String sessionId) {
+        ChatSession session = chatSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalStateException("Session not found"));
+
+        session.setFavorite(true);
+        ChatSession updatedSession = chatSessionRepository.save(session);
+
+        // Map and return the response DTO directly
+        return chatSessionMapper.toResponse(updatedSession);
     }
 }
