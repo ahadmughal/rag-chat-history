@@ -22,10 +22,23 @@ public class ChatSession {
 
     private Boolean isFavorite = false;
 
+    private Boolean active = true; // NEW: to mark if session is current/active
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatMessage> messages;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
