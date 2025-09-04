@@ -3,6 +3,7 @@ package com.rag.chat.controller;
 import com.rag.chat.dto.request.SendMessageRequest;
 import com.rag.chat.dto.response.SendMessageResponse;
 import com.rag.chat.service.ChatMessageService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Chat Messages", description = "Endpoints for managing chat messages")
 @RestController
 @RequestMapping("/messages")
 public class ChatMessageController {
