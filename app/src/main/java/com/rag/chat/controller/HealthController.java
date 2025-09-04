@@ -1,5 +1,6 @@
 package com.rag.chat.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthComponent;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+@Tag(name = "Health Controller", description = "Endpoint to verify the application running status")
 @RestController
 public class HealthController {
 
