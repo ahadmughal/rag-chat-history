@@ -56,7 +56,7 @@ public class ChatSessionController {
         return chatSessionService.getAllSessions();
     }
 
-    @PostMapping("/mark/favorite/{sessionId}")
+    @PostMapping("/toggle/favorite/{sessionId}")
     public ResponseEntity<ChatSessionResponse> markSessionAsFavorite(@PathVariable String sessionId) {
         ChatSessionResponse updatedSessionResponse = chatSessionService.markAsFavorite(sessionId);
         return ResponseEntity.ok(updatedSessionResponse);

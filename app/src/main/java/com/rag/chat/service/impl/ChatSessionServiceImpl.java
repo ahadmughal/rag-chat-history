@@ -74,7 +74,8 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         ChatSession session = chatSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalStateException("Session not found"));
 
-        session.setFavorite(true);
+        // Toggle the favorite value
+        session.setFavorite(!session.isFavorite());
         ChatSession updatedSession = chatSessionRepository.save(session);
 
         // Map and return the response DTO directly
