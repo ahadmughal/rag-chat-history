@@ -34,12 +34,10 @@ public class OpenAiRagService {
             return result.getChoices().get(0).getMessage().getContent();
 
         } catch (OpenAiHttpException e) {
-            // ✅ Catch OpenAI HTTP exceptions with status code
             log.error("OpenAI HTTP Error: status={} message={}", e.statusCode, e.getMessage(), e);
             return "OpenAI API error (" + e.statusCode + "): " + e.getMessage();
 
         } catch (Exception e) {
-            // ✅ Fallback for any other unexpected errors
             log.error("Unexpected OpenAI API error", e);
             return "Unexpected OpenAI service error: " + e.getMessage();
         }

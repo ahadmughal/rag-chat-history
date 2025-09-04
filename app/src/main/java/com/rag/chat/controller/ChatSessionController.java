@@ -47,7 +47,7 @@ public class ChatSessionController {
             return response;
         } catch (Exception e) {
             log.error("Error creating session: {}", e.getMessage(), e);
-            throw e; // can be handled by global exception handler
+            throw e;
         } finally {
             MDC.clear();
         }

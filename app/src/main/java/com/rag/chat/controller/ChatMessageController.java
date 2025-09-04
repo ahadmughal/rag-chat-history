@@ -32,7 +32,7 @@ public class ChatMessageController {
     }
 
     @GetMapping("/getBy/{sessionId}")
-    public ResponseEntity<List<SendMessageResponse>> getMessages(@PathVariable(required = true) String sessionId) {
+    public ResponseEntity<List<SendMessageResponse>> getMessages(@PathVariable String sessionId) {
         List<SendMessageResponse> messages = messageService.getMessagesBySession(sessionId);
         return ResponseEntity.ok(messages);
     }
@@ -41,8 +41,6 @@ public class ChatMessageController {
     public ResponseEntity<?> searchMessages(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String sessionId) {
-
-        // Delegate all logic to the service
         List<ChatMessage> results = messageService.search(query, sessionId);
         return ResponseEntity.ok(results);
     }

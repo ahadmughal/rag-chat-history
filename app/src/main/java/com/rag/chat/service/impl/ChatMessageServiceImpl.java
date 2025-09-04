@@ -41,14 +41,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     public SendMessageResponse sendMessage(SendMessageRequest request) {
         log.info("Sending message for session {}", request.getSessionId());
 
-        // Validate session exists (ignore active/inactive status)
         ChatSession session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> {
                     log.warn("Session not found: {}", request.getSessionId());
                     return new IllegalStateException("Session not found");
                 });
 
-        // Save user message
         ChatMessage chatMessage = ChatMessage.builder()
                 .session(session)
                 .sender("user")
@@ -58,7 +56,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         ChatMessage savedMessage = messageRepository.save(chatMessage);
         log.info("User message saved successfully with ID {}", savedMessage.getId());
 
-        // Generate AI response
         String botResponse;
         try {
             botResponse = openAiRagService.generateResponse(request.getMessage());
@@ -67,12 +64,10 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             botResponse = "Sorry, I couldn't process your message at the moment. Please try again later.";
         }
 
-        // Update the same message row with bot response
         savedMessage.setContext(botResponse);
         ChatMessage updatedMessage = messageRepository.save(savedMessage);
         log.info("Bot response updated for message ID {}", updatedMessage.getId());
 
-        // Map the updated message to response DTO
         return mapper.toSendMessageResponse(updatedMessage);
     }
 
@@ -91,10 +86,8 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     public List<ChatMessage> search(String query, String sessionId) {
         if (sessionId != null) {
-            // Return all messages of the session
             return messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
         } else {
-            // Search messages across all sessions
             return messageRepository.findByContentContainingIgnoreCaseOrderByCreatedAtAsc(query);
         }
     }

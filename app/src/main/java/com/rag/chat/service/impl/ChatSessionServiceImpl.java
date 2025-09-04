@@ -40,10 +40,8 @@ public class ChatSessionServiceImpl implements ChatSessionService {
             throw new IllegalArgumentException("Session name must not be empty");
         }
 
-        // Deactivate any old active sessions before creating new one
         deactivateOldSessions();
 
-        // Generate unique session ID
         String sessionId = UUID.randomUUID().toString();
 
         ChatSession session = ChatSession.builder()
@@ -82,25 +80,20 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         ChatSession session = chatSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalStateException("Session not found"));
 
-        // Toggle the favorite value
         session.setFavorite(!session.isFavorite());
         ChatSession updatedSession = chatSessionRepository.save(session);
 
-        // Map and return the response DTO directly
         return chatSessionMapper.toResponse(updatedSession);
     }
 
     @Override
     @Transactional
     public void deleteSession(String sessionId) {
-        // Fetch the session
         ChatSession session = chatSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalStateException("Session not found"));
 
-        // Delete all messages related to this session
         chatMessageRepository.deleteAllBySession(session);
 
-        // Delete the session itself
         chatSessionRepository.delete(session);
 
         log.info("Deleted session {} and all related messages", sessionId);

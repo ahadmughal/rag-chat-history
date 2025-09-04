@@ -32,7 +32,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    // Optional: add more specific exceptions here
 }
 
 class ErrorResponse {
@@ -46,7 +45,6 @@ class ErrorResponse {
         this.status = status;
     }
 
-    // getters & setters
     public LocalDateTime getTimestamp() { return timestamp; }
     public String getMessage() { return message; }
     public int getStatus() { return status; }

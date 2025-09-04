@@ -24,7 +24,6 @@ public class HealthController {
     public ResponseEntity<?> health() {
         HealthComponent healthComponent = healthEndpoint.health();
 
-        // If the HealthComponent is an instance of Health, we can access details
         if (healthComponent instanceof Health health) {
             Map<String, Object> response = Map.of(
                     "status", health.getStatus().getCode(),
@@ -33,7 +32,6 @@ public class HealthController {
             return ResponseEntity.ok(response);
         }
 
-        // Fallback for other types of HealthComponent
         return ResponseEntity.ok(Map.of(
                 "status", healthComponent.getStatus().getCode()
         ));
