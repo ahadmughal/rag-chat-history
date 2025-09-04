@@ -1,20 +1,22 @@
 CREATE TABLE chat_session (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    session_name VARCHAR(255) DEFAULT 'New Chat',
-    is_favorite BOOLEAN DEFAULT FALSE,
+    id VARCHAR(36) PRIMARY KEY,
+    session_name VARCHAR(255) NOT NULL,
+    active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE chat_message (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    session_id BIGINT NOT NULL,
+    session_id VARCHAR(36) NOT NULL,
     sender VARCHAR(50) NOT NULL,
     content TEXT NOT NULL,
     context TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_session FOREIGN KEY (session_id) REFERENCES chat_session(id) ON DELETE CASCADE
+    CONSTRAINT fk_session
+        FOREIGN KEY (session_id)
+        REFERENCES chat_session(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE api_key (
