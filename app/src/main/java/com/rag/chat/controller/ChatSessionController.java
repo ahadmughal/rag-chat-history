@@ -61,4 +61,10 @@ public class ChatSessionController {
         return ResponseEntity.ok(updatedSessionResponse);
     }
 
+    @DeleteMapping("/{sessionId}")
+    public ResponseEntity<Void> deleteSession(@PathVariable String sessionId) {
+        chatSessionService.deleteSession(sessionId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
