@@ -2,7 +2,6 @@ package com.rag.chat.service;
 
 import com.rag.chat.dto.request.ChatSessionRequest;
 import com.rag.chat.dto.response.ChatSessionResponse;
-import com.rag.chat.entity.ChatSession;
 
 import java.util.List;
 import java.util.Optional;

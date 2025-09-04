@@ -7,15 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChatSessionMapper {
 
-    public ChatSessionResponse toCreateSessionResponse(ChatSession session) {
-        return ChatSessionResponse.builder()
-                .sessionId(session.getId())
-                .sessionName(session.getSessionName())
-                .active(session.getActive())
-                .favorite(session.isFavorite())
-                .build();
-    }
-
     public ChatSessionResponse toResponse(ChatSession session) {
         return ChatSessionResponse.builder()
                 .sessionId(session.getId())
@@ -24,4 +15,5 @@ public class ChatSessionMapper {
                 .favorite(session.isFavorite())
                 .build();
     }
+
 }

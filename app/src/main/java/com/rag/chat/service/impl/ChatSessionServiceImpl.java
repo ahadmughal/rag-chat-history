@@ -41,32 +41,11 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         if (request.getSessionName() == null || request.getSessionName().isBlank()) {
             throw new IllegalArgumentException(SESSION_NOT_EMPTY);
         }
-
         deactivateOldSessions();
-
         String sessionId = UUID.randomUUID().toString();
-
-        ChatSession session = ChatSession.builder()
-                .id(sessionId)
-                .sessionName(request.getSessionName())
-                .active(true)
-                .favorite(false)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        ChatSession saved = chatSessionRepository.save(session);
+        ChatSession chatSession = buildSessionRequest(sessionId,  request.getSessionName());
         logger.info(CREATED_NEW_CHAT_SESSION, sessionId, request.getSessionName());
-
-        return chatSessionMapper.toCreateSessionResponse(saved);
-    }
-
-    @Override
-    public List<ChatSessionResponse> getAllSessions() {
-        List<ChatSession> sessions = chatSessionRepository.findAllByOrderByCreatedAtDesc();
-        return sessions.stream()
-                .map(chatSessionMapper::toCreateSessionResponse)
-                .toList();
+        return chatSessionMapper.toResponse(chatSession);
     }
 
     private void deactivateOldSessions() {
@@ -77,14 +56,33 @@ public class ChatSessionServiceImpl implements ChatSessionService {
             logger.info(DEACTIVATED_OLD_SESSION, session.getId());
         }
     }
+
+    private ChatSession buildSessionRequest(String sessionId, String sessionName) {
+        ChatSession session = ChatSession.builder()
+                .id(sessionId)
+                .sessionName(sessionName)
+                .active(true)
+                .favorite(false)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return chatSessionRepository.save(session);
+    }
+
+    @Override
+    public List<ChatSessionResponse> getAllSessions() {
+        List<ChatSession> sessions = chatSessionRepository.findAllByOrderByCreatedAtDesc();
+        return sessions.stream()
+                .map(chatSessionMapper::toResponse)
+                .toList();
+    }
+
     @Override
     public ChatSessionResponse markAsFavorite(String sessionId) {
         ChatSession session = chatSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
-
         session.setFavorite(!session.isFavorite());
         ChatSession updatedSession = chatSessionRepository.save(session);
-
         return chatSessionMapper.toResponse(updatedSession);
     }
 
@@ -93,11 +91,8 @@ public class ChatSessionServiceImpl implements ChatSessionService {
     public void deleteSession(String sessionId) {
         ChatSession session = chatSessionRepository.findById(sessionId)
                 .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
-
         chatMessageRepository.deleteAllBySession(session);
-
         chatSessionRepository.delete(session);
-
         log.info(DELETED_SESSION_MESSAGES, sessionId);
     }
 
@@ -107,15 +102,8 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         if (activeSessions.isEmpty()) {
             return Optional.empty();
         }
-
         ChatSession session = activeSessions.get(0);
-        ChatSessionResponse response = ChatSessionResponse.builder()
-                .sessionId(session.getId())
-                .sessionName(session.getSessionName())
-                .active(session.getActive())
-                .favorite(session.isFavorite())
-                .build();
-
-        return Optional.of(response);
+        ChatSessionResponse chatSessionResponse = chatSessionMapper.toResponse(session);
+        return Optional.of(chatSessionResponse);
     }
 }

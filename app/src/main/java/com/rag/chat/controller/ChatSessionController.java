@@ -40,7 +40,6 @@ public class ChatSessionController {
         String requestId = UUID.randomUUID().toString();
         MDC.put(REQUEST_ID_KEY, requestId);
         log.info(CREATE_SESSION_REQUEST, request.getSessionName());
-
         try {
             ChatSessionResponse response = chatSessionService.createSession(request);
             log.info(SESSION_CREATED_SUCCESSFULLY, response.getSessionId(), response.getSessionId());
