@@ -11,6 +11,7 @@ public class ChatSessionMapper {
         return CreateSessionResponse.builder()
                 .sessionId(session.getId())
                 .sessionName(session.getSessionName())
+                .active(session.getActive())
                 .build();
     }
 }

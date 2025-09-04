@@ -7,11 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChatSessionRepository extends JpaRepository<ChatSession, Long> {
+public interface ChatSessionRepository extends JpaRepository<ChatSession, String> {
 
-    // Find all sessions by userId
-    List<ChatSession> findByUserId(Long userId);
+    // Find all active sessions
+    List<ChatSession> findByActiveTrue();
 
-    // Find favorite sessions for a user
-    List<ChatSession> findByUserIdAndIsFavoriteTrue(Long userId);
 }

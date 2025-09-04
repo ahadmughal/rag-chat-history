@@ -12,17 +12,14 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ChatSession {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // UUID
 
-    private Long userId;
+    @Column(nullable = false)
+    private String sessionName;
 
-    private String sessionName = "New Chat";
-
-    private Boolean isFavorite = false;
-
-    private Boolean active = true; // NEW: to mark if session is current/active
+    private Boolean active = true;
 
     private LocalDateTime createdAt;
 

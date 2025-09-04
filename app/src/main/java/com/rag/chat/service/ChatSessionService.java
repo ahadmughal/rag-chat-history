@@ -5,5 +5,4 @@ import com.rag.chat.dto.response.CreateSessionResponse;
 
 public interface ChatSessionService {
     CreateSessionResponse createSession(CreateSessionRequest request);
-    void deactivateOldSessions(Long userId);
 }
