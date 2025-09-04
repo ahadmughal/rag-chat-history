@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/messages")
 public class ChatMessageController {
@@ -24,5 +26,11 @@ public class ChatMessageController {
         logger.info("Received send message request for session {}", request.getSessionId());
         SendMessageResponse response = messageService.sendMessage(request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/getBy/{sessionId}")
+    public ResponseEntity<List<SendMessageResponse>> getMessages(@PathVariable(required = true) String sessionId) {
+        List<SendMessageResponse> messages = messageService.getMessagesBySession(sessionId);
+        return ResponseEntity.ok(messages);
     }
 }
