@@ -1,5 +1,6 @@
 package com.rag.chat.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class ChatMessage {
     private Long id;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "session_id", nullable = false)
     private ChatSession session;
 

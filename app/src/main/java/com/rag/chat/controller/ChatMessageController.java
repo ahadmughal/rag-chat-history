@@ -2,6 +2,7 @@ package com.rag.chat.controller;
 
 import com.rag.chat.dto.request.SendMessageRequest;
 import com.rag.chat.dto.response.SendMessageResponse;
+import com.rag.chat.entity.ChatMessage;
 import com.rag.chat.service.ChatMessageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,5 +35,15 @@ public class ChatMessageController {
     public ResponseEntity<List<SendMessageResponse>> getMessages(@PathVariable(required = true) String sessionId) {
         List<SendMessageResponse> messages = messageService.getMessagesBySession(sessionId);
         return ResponseEntity.ok(messages);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchMessages(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String sessionId) {
+
+        // Delegate all logic to the service
+        List<ChatMessage> results = messageService.search(query, sessionId);
+        return ResponseEntity.ok(results);
     }
 }

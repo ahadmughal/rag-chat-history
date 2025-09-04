@@ -87,4 +87,15 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .map(mapper::toSendMessageResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ChatMessage> search(String query, String sessionId) {
+        if (sessionId != null) {
+            // Return all messages of the session
+            return messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
+        } else {
+            // Search messages across all sessions
+            return messageRepository.findByContentContainingIgnoreCaseOrderByCreatedAtAsc(query);
+        }
+    }
 }
