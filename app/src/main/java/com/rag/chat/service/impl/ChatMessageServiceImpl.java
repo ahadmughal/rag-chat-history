@@ -12,6 +12,7 @@ import com.rag.chat.service.OpenAiRagService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,22 +43,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) {
         log.info(SENDING_MESSAGE_FOR_SESSION, request.getSessionId());
-
         ChatSession session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> {
                     log.warn(SESSION_NOT_FOUND_LOG, request.getSessionId());
                     return new IllegalStateException(SESSION_NOT_FOUND_EXEC);
                 });
-
-        ChatMessage chatMessage = ChatMessage.builder()
-                .session(session)
-                .sender(SENDER_USER)
-                .content(request.getMessage())
-                .createdAt(LocalDateTime.now())
-                .build();
-        ChatMessage savedMessage = messageRepository.save(chatMessage);
+        ChatMessage savedMessage = buildChatMessageAndSave(session, request.getMessage());
         log.info(USER_MESSAGE_SAVED_LOG, savedMessage.getId());
-
         String botResponse;
         try {
             botResponse = openAiRagService.generateResponse(request.getMessage());
@@ -65,21 +57,27 @@ public class ChatMessageServiceImpl implements ChatMessageService {
             log.error(ERROR_AI_RESPONSE_LOG, e.getMessage(), e);
             botResponse = BOT_RESPONSE_EXEC;
         }
-
         savedMessage.setContext(botResponse);
         ChatMessage updatedMessage = messageRepository.save(savedMessage);
         log.info(BOT_RESPONSE_UPDATED, updatedMessage.getId());
-
         return mapper.toSendMessageResponse(updatedMessage);
+    }
+
+    private ChatMessage buildChatMessageAndSave(ChatSession session, String message){
+        ChatMessage chatMessage = ChatMessage.builder()
+                .session(session)
+                .sender(SENDER_USER)
+                .content(message)
+                .createdAt(LocalDateTime.now())
+                .build();
+        return messageRepository.save(chatMessage);
     }
 
     @Override
     public List<SendMessageResponse> getMessagesBySession(String sessionId) {
         ChatSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new IllegalStateException("Session not found"));
-
+                .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
         List<ChatMessage> messages = messageRepository.findBySessionOrderByCreatedAtAsc(session);
-
         return messages.stream()
                 .map(mapper::toSendMessageResponse)
                 .collect(Collectors.toList());
@@ -87,10 +85,6 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     @Override
     public List<ChatMessage> search(String query, String sessionId) {
-        if (sessionId != null) {
-            return messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId);
-        } else {
-            return messageRepository.findByContentContainingIgnoreCaseOrderByCreatedAtAsc(query);
-        }
+        return StringUtils.isNotBlank(sessionId)  ? messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId) : messageRepository.findByContentContainingIgnoreCaseOrderByCreatedAtAsc(query);
     }
 }
