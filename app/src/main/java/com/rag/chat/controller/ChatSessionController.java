@@ -2,7 +2,6 @@ package com.rag.chat.controller;
 
 import com.rag.chat.dto.request.ChatSessionRequest;
 import com.rag.chat.dto.response.ChatSessionResponse;
-import com.rag.chat.entity.ChatSession;
 import com.rag.chat.mapper.ChatSessionMapper;
 import com.rag.chat.service.ChatSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
+
+import static com.rag.chat.constants.AppConstants.*;
 
 @Tag(name = "Chat Sessions", description = "Endpoints for managing chat sessions")
 @RestController
@@ -38,15 +38,15 @@ public class ChatSessionController {
     public ChatSessionResponse createSession(@RequestBody ChatSessionRequest request,
                                              HttpServletRequest httpRequest) {
         String requestId = UUID.randomUUID().toString();
-        MDC.put("requestId", requestId);
-        log.info("Received create session request: sessionName={}", request.getSessionName());
+        MDC.put(REQUEST_ID_KEY, requestId);
+        log.info(CREATE_SESSION_REQUEST, request.getSessionName());
 
         try {
             ChatSessionResponse response = chatSessionService.createSession(request);
-            log.info("Session created successfully: sessionId={}, userId={}", response.getSessionId(), response.getSessionId());
+            log.info(SESSION_CREATED_SUCCESSFULLY, response.getSessionId(), response.getSessionId());
             return response;
         } catch (Exception e) {
-            log.error("Error creating session: {}", e.getMessage(), e);
+            log.error(ERROR_CREATING_SESSION, e.getMessage(), e);
             throw e;
         } finally {
             MDC.clear();

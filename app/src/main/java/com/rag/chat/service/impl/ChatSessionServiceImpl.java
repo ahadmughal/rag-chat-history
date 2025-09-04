@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.rag.chat.constants.AppConstants.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,7 +39,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
     @Override
     public ChatSessionResponse createSession(ChatSessionRequest request) {
         if (request.getSessionName() == null || request.getSessionName().isBlank()) {
-            throw new IllegalArgumentException("Session name must not be empty");
+            throw new IllegalArgumentException(SESSION_NOT_EMPTY);
         }
 
         deactivateOldSessions();
@@ -54,7 +56,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
                 .build();
 
         ChatSession saved = chatSessionRepository.save(session);
-        logger.info("Created new chat session: sessionId={}, sessionName={}", sessionId, request.getSessionName());
+        logger.info(CREATED_NEW_CHAT_SESSION, sessionId, request.getSessionName());
 
         return chatSessionMapper.toCreateSessionResponse(saved);
     }
@@ -72,13 +74,13 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         for (ChatSession session : activeSessions) {
             session.setActive(false);
             chatSessionRepository.save(session);
-            logger.info("Deactivated old session: sessionId={}", session.getId());
+            logger.info(DEACTIVATED_OLD_SESSION, session.getId());
         }
     }
     @Override
     public ChatSessionResponse markAsFavorite(String sessionId) {
         ChatSession session = chatSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new IllegalStateException("Session not found"));
+                .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
 
         session.setFavorite(!session.isFavorite());
         ChatSession updatedSession = chatSessionRepository.save(session);
@@ -90,13 +92,13 @@ public class ChatSessionServiceImpl implements ChatSessionService {
     @Transactional
     public void deleteSession(String sessionId) {
         ChatSession session = chatSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new IllegalStateException("Session not found"));
+                .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
 
         chatMessageRepository.deleteAllBySession(session);
 
         chatSessionRepository.delete(session);
 
-        log.info("Deleted session {} and all related messages", sessionId);
+        log.info(DELETED_SESSION_MESSAGES, sessionId);
     }
 
     @Override

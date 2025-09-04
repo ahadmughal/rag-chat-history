@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.rag.chat.constants.AppConstants.*;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,34 +41,34 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) {
-        log.info("Sending message for session {}", request.getSessionId());
+        log.info(SENDING_MESSAGE_FOR_SESSION, request.getSessionId());
 
         ChatSession session = sessionRepository.findById(request.getSessionId())
                 .orElseThrow(() -> {
-                    log.warn("Session not found: {}", request.getSessionId());
-                    return new IllegalStateException("Session not found");
+                    log.warn(SESSION_NOT_FOUND_LOG, request.getSessionId());
+                    return new IllegalStateException(SESSION_NOT_FOUND_EXEC);
                 });
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .session(session)
-                .sender("user")
+                .sender(SENDER_USER)
                 .content(request.getMessage())
                 .createdAt(LocalDateTime.now())
                 .build();
         ChatMessage savedMessage = messageRepository.save(chatMessage);
-        log.info("User message saved successfully with ID {}", savedMessage.getId());
+        log.info(USER_MESSAGE_SAVED_LOG, savedMessage.getId());
 
         String botResponse;
         try {
             botResponse = openAiRagService.generateResponse(request.getMessage());
         } catch (Exception e) {
-            log.error("Error while generating AI response: {}", e.getMessage(), e);
-            botResponse = "Sorry, I couldn't process your message at the moment. Please try again later.";
+            log.error(ERROR_AI_RESPONSE_LOG, e.getMessage(), e);
+            botResponse = BOT_RESPONSE_EXEC;
         }
 
         savedMessage.setContext(botResponse);
         ChatMessage updatedMessage = messageRepository.save(savedMessage);
-        log.info("Bot response updated for message ID {}", updatedMessage.getId());
+        log.info(BOT_RESPONSE_UPDATED, updatedMessage.getId());
 
         return mapper.toSendMessageResponse(updatedMessage);
     }

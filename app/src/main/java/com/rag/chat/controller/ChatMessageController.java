@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.rag.chat.constants.AppConstants.SEND_MESSAGE_REQUEST_LOG;
+
 @Tag(name = "Chat Messages", description = "Endpoints for managing chat messages")
 @RestController
 @RequestMapping("/messages")
@@ -26,7 +28,7 @@ public class ChatMessageController {
 
     @PostMapping("/send")
     public ResponseEntity<SendMessageResponse> sendMessage(@Valid @RequestBody SendMessageRequest request) {
-        logger.info("Received send message request for session {}", request.getSessionId());
+        logger.info(SEND_MESSAGE_REQUEST_LOG, request.getSessionId());
         SendMessageResponse response = messageService.sendMessage(request);
         return ResponseEntity.ok(response);
     }

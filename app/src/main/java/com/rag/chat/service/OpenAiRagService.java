@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.Collections;
 
+import static com.rag.chat.constants.AppConstants.*;
+
 @Service
 @Slf4j
 public class OpenAiRagService {
@@ -25,8 +27,8 @@ public class OpenAiRagService {
     public String generateResponse(String userMessage) {
         try {
             ChatCompletionRequest request = ChatCompletionRequest.builder()
-                    .model("gpt-3.5-turbo")
-                    .messages(Collections.singletonList(new ChatMessage("user", userMessage)))
+                    .model(OPENAI_MODEL)
+                    .messages(Collections.singletonList(new ChatMessage(SENDER_USER, userMessage)))
                     .maxTokens(100)
                     .build();
 
@@ -34,12 +36,12 @@ public class OpenAiRagService {
             return result.getChoices().get(0).getMessage().getContent();
 
         } catch (OpenAiHttpException e) {
-            log.error("OpenAI HTTP Error: status={} message={}", e.statusCode, e.getMessage(), e);
-            return "OpenAI API error (" + e.statusCode + "): " + e.getMessage();
+            log.error(OPEN_AI_HTTP_LOG, e.statusCode, e.getMessage(), e);
+            return OPEN_AI_ERROR_RESPONSE_PRE + e.statusCode + OPEN_AI_ERROR_RESPONSE_POST + e.getMessage();
 
         } catch (Exception e) {
-            log.error("Unexpected OpenAI API error", e);
-            return "Unexpected OpenAI service error: " + e.getMessage();
+            log.error(UNEXPECTED_OPENAI_ERROR, e);
+            return UNEXPECTED_OPENAI_ERROR + e.getMessage();
         }
     }
 }
