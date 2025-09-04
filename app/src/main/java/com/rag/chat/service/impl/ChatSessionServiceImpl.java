@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -103,5 +104,23 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         chatSessionRepository.delete(session);
 
         log.info("Deleted session {} and all related messages", sessionId);
+    }
+
+    @Override
+    public Optional<ChatSessionResponse> getActiveSession() {
+        List<ChatSession> activeSessions = chatSessionRepository.findByActiveTrue();
+        if (activeSessions.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ChatSession session = activeSessions.get(0);
+        ChatSessionResponse response = ChatSessionResponse.builder()
+                .sessionId(session.getId())
+                .sessionName(session.getSessionName())
+                .active(session.getActive())
+                .favorite(session.isFavorite())
+                .build();
+
+        return Optional.of(response);
     }
 }

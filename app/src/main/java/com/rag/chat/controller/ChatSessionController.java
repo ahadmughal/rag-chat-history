@@ -2,6 +2,7 @@ package com.rag.chat.controller;
 
 import com.rag.chat.dto.request.ChatSessionRequest;
 import com.rag.chat.dto.response.ChatSessionResponse;
+import com.rag.chat.entity.ChatSession;
 import com.rag.chat.mapper.ChatSessionMapper;
 import com.rag.chat.service.ChatSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Tag(name = "Chat Sessions", description = "Endpoints for managing chat sessions")
@@ -67,4 +70,10 @@ public class ChatSessionController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<ChatSessionResponse> getActiveSession() {
+        return chatSessionService.getActiveSession()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
 }

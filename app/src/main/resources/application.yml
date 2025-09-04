@@ -3,6 +3,12 @@ server:
   servlet:
     context-path: /rag-chat
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/rag_chat?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
