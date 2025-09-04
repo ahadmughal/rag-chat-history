@@ -33,7 +33,7 @@ public class SessionValidationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String requestId = UUID.randomUUID().toString();
-        MDC.put("requestId", requestId); // For tracing logs
+        MDC.put("requestId", requestId);
 
         String path = request.getRequestURI();
 
@@ -47,25 +47,25 @@ public class SessionValidationFilter extends OncePerRequestFilter {
         }
 
         // Validate session header
-        String sessionIdHeader = request.getHeader("X-Session-Id");
+        String sessionId = request.getHeader("X-Session-Id");
 
-        if (sessionIdHeader == null || sessionIdHeader.isBlank()) {
+        if (sessionId == null) {
             logger.warn("Missing session header for request {}", path);
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing session information");
             MDC.clear();
             return;
         }
 
-        Optional<ChatSession> sessionOpt = chatSessionRepository.findById(sessionIdHeader);
+        Optional<ChatSession> sessionOpt = chatSessionRepository.findById(sessionId);
 
         if (sessionOpt.isEmpty() || sessionOpt.get().getActive() == null || !sessionOpt.get().getActive()) {
-            logger.warn("Unauthorized access: sessionId={}, path={}", sessionIdHeader, path);
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid session or inactive session");
+            logger.warn("Unauthorized access: sessionId={}, path={}", sessionId, path);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or inactive session");
             MDC.clear();
             return;
         }
 
-        logger.info("Valid session request: sessionId={}, path={}", sessionIdHeader, path);
+        logger.info("Valid session request: sessionId={}, path={}", sessionId, path);
         filterChain.doFilter(request, response);
         MDC.clear();
     }
