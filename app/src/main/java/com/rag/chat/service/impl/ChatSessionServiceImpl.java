@@ -106,4 +106,14 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         ChatSessionResponse chatSessionResponse = chatSessionMapper.toResponse(session);
         return Optional.of(chatSessionResponse);
     }
+
+    @Override
+    @Transactional
+    public ChatSessionResponse updateSessionName(String sessionId, String newName) {
+        ChatSession session = chatSessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalStateException(SESSION_NOT_FOUND_EXEC));
+        session.setSessionName(newName);
+        session =  chatSessionRepository.save(session);
+        return chatSessionMapper.toResponse(session);
+    }
 }

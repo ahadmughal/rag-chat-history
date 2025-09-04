@@ -2,6 +2,7 @@ package com.rag.chat.controller;
 
 import com.rag.chat.dto.request.ChatSessionRequest;
 import com.rag.chat.dto.response.ChatSessionResponse;
+import com.rag.chat.entity.ChatSession;
 import com.rag.chat.mapper.ChatSessionMapper;
 import com.rag.chat.service.ChatSessionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.rag.chat.constants.AppConstants.*;
@@ -50,6 +52,14 @@ public class ChatSessionController {
         } finally {
             MDC.clear();
         }
+    }
+
+    @PatchMapping("/{sessionId}/name")
+    public ResponseEntity<ChatSessionResponse> updateSessionName(
+            @PathVariable String sessionId,
+            @RequestBody ChatSessionRequest request) {
+        ChatSessionResponse updatedSession = chatSessionService.updateSessionName(sessionId, request.getSessionName());
+        return ResponseEntity.ok(updatedSession);
     }
 
     @GetMapping
