@@ -7,7 +7,10 @@ import com.rag.chat.entity.ChatMessage;
 import java.util.List;
 
 public interface ChatMessageService {
+
     SendMessageResponse sendMessage(SendMessageRequest request);
+
     List<SendMessageResponse> getMessagesBySession(String sessionId);
+
     List<ChatMessage> search(String query, String sessionId);
 }

@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatSessionService {
+
     ChatSessionResponse createSession(ChatSessionRequest request);
+
     List<ChatSessionResponse> getAllSessions();
+
     ChatSessionResponse markAsFavorite(String sessionId);
+
     void deleteSession(String sessionId);
+
     Optional<ChatSessionResponse> getActiveSession();
 }
