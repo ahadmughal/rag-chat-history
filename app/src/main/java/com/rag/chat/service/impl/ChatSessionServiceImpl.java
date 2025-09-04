@@ -53,6 +53,14 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         return chatSessionMapper.toCreateSessionResponse(saved);
     }
 
+    @Override
+    public List<CreateSessionResponse> getAllSessions() {
+        List<ChatSession> sessions = chatSessionRepository.findAllByOrderByCreatedAtDesc();
+        return sessions.stream()
+                .map(chatSessionMapper::toCreateSessionResponse)
+                .toList();
+    }
+
     private void deactivateOldSessions() {
         List<ChatSession> activeSessions = chatSessionRepository.findByActiveTrue();
         for (ChatSession session : activeSessions) {

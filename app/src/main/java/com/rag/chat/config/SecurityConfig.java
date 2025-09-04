@@ -17,18 +17,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        // open endpoints
-                        .requestMatchers("/sessions/create").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                        // all others require valid session
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(sessionValidationFilter, UsernamePasswordAuthenticationFilter.class)
-                // disable default login
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(form -> form.disable());
+                        .requestMatchers("/sessions/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll() // open endpoints
+                        .requestMatchers("/messages/send/**").authenticated() // only validate sessions for message sending
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }

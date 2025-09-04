@@ -9,7 +9,8 @@ import java.util.List;
 @Repository
 public interface ChatSessionRepository extends JpaRepository<ChatSession, String> {
 
-    // Find all active sessions
     List<ChatSession> findByActiveTrue();
+
+    List<ChatSession> findAllByOrderByCreatedAtDesc();
 
 }

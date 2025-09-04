@@ -12,6 +12,7 @@ import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Chat Sessions", description = "Endpoints for managing chat sessions")
@@ -42,5 +43,10 @@ public class ChatSessionController {
         } finally {
             MDC.clear();
         }
+    }
+
+    @GetMapping
+    public List<CreateSessionResponse> getAllSessions() {
+        return chatSessionService.getAllSessions();
     }
 }
