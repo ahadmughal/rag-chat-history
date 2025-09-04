@@ -49,6 +49,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
                 .id(sessionId)
                 .sessionName(request.getSessionName())
                 .active(true)
+                .favorite(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

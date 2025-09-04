@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface ChatMessageService {
     SendMessageResponse sendMessage(SendMessageRequest request);
-
     List<SendMessageResponse> getMessagesBySession(String sessionId);
 }

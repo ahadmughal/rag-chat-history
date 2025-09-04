@@ -12,6 +12,7 @@ public class ChatSessionMapper {
                 .sessionId(session.getId())
                 .sessionName(session.getSessionName())
                 .active(session.getActive())
+                .favorite(session.isFavorite())
                 .build();
     }
 

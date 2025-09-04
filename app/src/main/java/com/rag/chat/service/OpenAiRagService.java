@@ -1,5 +1,6 @@
 package com.rag.chat.service;
 
+import com.theokanning.openai.OpenAiHttpException;
 import com.theokanning.openai.OpenAiService;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
@@ -22,45 +23,25 @@ public class OpenAiRagService {
     }
 
     public String generateResponse(String userMessage) {
-        int maxRetries = 3;
-        int retryCount = 0;
-        long backoffMillis = 1000; // 1s initial wait
+        try {
+            ChatCompletionRequest request = ChatCompletionRequest.builder()
+                    .model("gpt-3.5-turbo")
+                    .messages(Collections.singletonList(new ChatMessage("user", userMessage)))
+                    .maxTokens(100)
+                    .build();
 
-        while (retryCount < maxRetries) {
-            try {
-                ChatCompletionRequest request = ChatCompletionRequest.builder()
-                        .model("gpt-3.5-turbo")
-                        .messages(Collections.singletonList(new ChatMessage("user", userMessage)))
-                        .maxTokens(100)
-                        .build();
+            ChatCompletionResult result = openAiService.createChatCompletion(request);
+            return result.getChoices().get(0).getMessage().getContent();
 
-                ChatCompletionResult result = openAiService.createChatCompletion(request);
-                return result.getChoices().get(0).getMessage().getContent();
+        } catch (OpenAiHttpException e) {
+            // ✅ Catch OpenAI HTTP exceptions with status code
+            log.error("OpenAI HTTP Error: status={} message={}", e.statusCode, e.getMessage(), e);
+            return "OpenAI API error (" + e.statusCode + "): " + e.getMessage();
 
-            } catch (Exception e) {
-                retryCount++;
-                String errorMsg = e.getMessage() != null ? e.getMessage() : "Unknown error";
-
-                // Handle rate limit
-                if (errorMsg.contains("429")) {
-                    log.warn("OpenAI rate limit hit. Retrying {}/{} after {} ms", retryCount, maxRetries, backoffMillis);
-                    if (retryCount == maxRetries) {
-                        return "Rate limit exceeded. Please slow down and try again.";
-                    }
-                    try {
-                        Thread.sleep(backoffMillis);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                    backoffMillis *= 2; // exponential backoff
-                } else {
-                    log.error("OpenAI API error: {}", errorMsg, e);
-                    return "OpenAI service error: " + errorMsg;
-                }
-            }
+        } catch (Exception e) {
+            // ✅ Fallback for any other unexpected errors
+            log.error("Unexpected OpenAI API error", e);
+            return "Unexpected OpenAI service error: " + e.getMessage();
         }
-
-        return "Unexpected error. Please try again later.";
     }
 }
