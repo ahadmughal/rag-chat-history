@@ -8,6 +8,7 @@ import com.rag.chat.mapper.ChatMessageMapper;
 import com.rag.chat.repository.ChatMessageRepository;
 import com.rag.chat.repository.ChatSessionRepository;
 import com.rag.chat.service.ChatMessageService;
+import com.rag.chat.service.OpenAiRagService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-
 
 @Service
 @RequiredArgsConstructor
@@ -25,44 +25,52 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     @Autowired
     private ChatSessionRepository sessionRepository;
+
     @Autowired
     private ChatMessageRepository messageRepository;
+
     @Autowired
     private ChatMessageMapper mapper;
+
+    @Autowired
+    private OpenAiRagService openAiRagService;
 
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) {
         log.info("Sending message for session {}", request.getSessionId());
 
-        // Validate session
+        // Validate session exists (ignore active/inactive status)
         ChatSession session = sessionRepository.findById(request.getSessionId())
-                .filter(ChatSession::getActive)
                 .orElseThrow(() -> {
-                    log.warn("Session inactive or not found: {}", request.getSessionId());
-                    return new IllegalStateException("Session inactive or expired");
+                    log.warn("Session not found: {}", request.getSessionId());
+                    return new IllegalStateException("Session not found");
                 });
 
-        // Generate response (placeholder for OpenAI/RAG integration)
-        String ragResponse = generateRagResponse(request.getMessage());
-
-        // Save the message
+        // Save user message
         ChatMessage chatMessage = ChatMessage.builder()
                 .session(session)
-                .sender(request.getMessage())
+                .sender("user")
                 .content(request.getMessage())
-                .context(ragResponse) // store AI response as context
                 .createdAt(LocalDateTime.now())
                 .build();
+        ChatMessage savedMessage = messageRepository.save(chatMessage);
+        log.info("User message saved successfully with ID {}", savedMessage.getId());
 
-        ChatMessage saved = messageRepository.save(chatMessage);
-        log.info("Message saved successfully with ID {}", saved.getId());
+        // Generate AI response
+        String botResponse;
+        try {
+            botResponse = openAiRagService.generateResponse(request.getMessage());
+        } catch (Exception e) {
+            log.error("Error while generating AI response: {}", e.getMessage(), e);
+            botResponse = "Sorry, I couldn't process your message at the moment. Please try again later.";
+        }
 
-        // Map to response DTO
-        return mapper.toSendMessageResponse(saved);
-    }
+        // Update the same message row with bot response
+        savedMessage.setContext(botResponse);
+        ChatMessage updatedMessage = messageRepository.save(savedMessage);
+        log.info("Bot response updated for message ID {}", updatedMessage.getId());
 
-    // TODO: Replace with OpenAI API call
-    private String generateRagResponse(String userMessage) {
-        return "Auto-response to: " + userMessage;
+        // Map the updated message to response DTO
+        return mapper.toSendMessageResponse(updatedMessage);
     }
 }

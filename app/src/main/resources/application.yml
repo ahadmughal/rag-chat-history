@@ -19,3 +19,5 @@ spring:
     enabled: false
     baseline-on-migrate: false
     locations: classpath:db/migration
+
+openai.api.key: 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
