@@ -25,5 +25,14 @@ public class AppConstants {
     public static final String SENDER_BOT = "bot";
     public static final String OPENAI_MODEL = "gpt-3.5-turbo";
     public static final String REQUEST_ID_KEY = "requestId";
+    public static final String X_API_KEY = "X-API-KEY";
+    public static final String INVALID_KEY = "Invalid or missing API key";
+    public static final String API_KEY = "apiKey";
+    public static final String API_KEY_VALIDATION_SUCCESS = "API key validation successful for path: {}";
+    public static final String API_KEY_VALIDATION_FAILED = "API key validation failed for path: {}";
+    public static final String API_KEY_FILTER_PROCESSING = "ApiKeyAuthFilter processing path: {}";
+    public static final String KEEP_FILTERING_PATH = "Should skip filtering for path {}: {}";
+    public static final String CHECKING_PATH_FILTER = "Checking shouldNotFilter for path: {}";
+    public static final String IGNORING_SWAGGER_PATHS = "Configuring WebSecurity to ignore Swagger paths";
 
 }

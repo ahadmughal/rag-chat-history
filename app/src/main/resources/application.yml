@@ -1,3 +1,6 @@
+app:
+  api-key: my-super-secret-key
+
 server:
   port: 8989
   servlet:
@@ -25,6 +28,14 @@ spring:
     enabled: false
     baseline-on-migrate: false
     locations: classpath:db/migration
+
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    com.rag.chat: DEBUG
 
 #openai.api.key: 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
 openai.api.key: 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
