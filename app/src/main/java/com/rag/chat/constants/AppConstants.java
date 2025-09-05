@@ -22,6 +22,7 @@ public class AppConstants {
     public static final String CREATE_SESSION_REQUEST = "Received create session request: sessionName={}";
     public static final String SESSION_CREATED_SUCCESSFULLY = "Session created successfully: sessionId={}, userId={}";
     public static final String SENDER_USER = "user";
+    public static final String SENDER_BOT = "bot";
     public static final String OPENAI_MODEL = "gpt-3.5-turbo";
     public static final String REQUEST_ID_KEY = "requestId";
 
