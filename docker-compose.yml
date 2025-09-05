@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: rag-chat-postgres
+    environment:
+      POSTGRES_DB: rag_chat_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./V1__create_tables.sql:/docker-entrypoint-initdb.d/V1__create_tables.sql
+    networks:
+      - rag-network
+
+  adminer:
+    image: adminer
+    container_name: rag-chat-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - rag-network
+
+  app:
+    build: .
+    container_name: rag-chat-app
+    depends_on:
+      - postgres
+    ports:
+      - "8989:8989"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/rag_chat_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_FLYWAY_ENABLED: false
+    networks:
+      - rag-network
+
+volumes:
+  postgres-data:
+
+networks:
+  rag-network:
