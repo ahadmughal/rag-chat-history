@@ -42,38 +42,6 @@ The service is built using **Spring Boot (Java 17)**, **PostgreSQL**, and follow
 
 ---
 
-## Project Structure
-
-rag-chat-storage/
-├── build.gradle
-├── settings.gradle
-├── Dockerfile
-├── docker-compose.yml
-├── .env # Database credentials and environment variables
-├── src/main/java/com/example/ragchat
-│ ├── config/ # Security, CORS, Swagger, APIKey configuration
-│ ├── controller/ # REST Controllers
-│ ├── dto/ # Request & Response DTOs
-│ ├── service/
-│ │ ├── impl/ # Service Implementations
-│ ├── model/ # JPA Entities
-│ ├── repository/ # Spring Data JPA Repositories
-│ ├── exception/ # Custom exceptions & Global handler
-│ ├── util/ # Helpers (logging, rate limiting)
-│ └── RagChatApplication.java
-│
-├── src/main/resources/
-│ ├── application.yml
-│ ├── application-dev.yml
-│ ├── application-pre-sit.yml
-│ ├── application-sit.yml
-│ └── db/migration/ # Flyway migration SQL files (PostgreSQL compatible)
-
-sql
-Copy code
-
----
-
 ## Database Schema
 
 ### chat_sessions
