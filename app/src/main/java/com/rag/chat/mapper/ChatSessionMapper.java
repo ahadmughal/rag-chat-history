@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ChatSessionMapper {
 
+    /**
+     * Maps a ChatSession entity to a ChatSessionResponse DTO.
+     *
+     * @param session The ChatSession entity to be mapped
+     * @return The corresponding ChatSessionResponse DTO
+     */
     public ChatSessionResponse toResponse(ChatSession session) {
         return ChatSessionResponse.builder()
                 .sessionId(session.getId())

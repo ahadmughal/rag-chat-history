@@ -40,6 +40,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     @Autowired
     private OpenAiRagService openAiRagService;
 
+    /**
+     * Sends a message in a chat session, saves it, and generates a bot response using OpenAI.
+     *
+     * @param request The request body containing message details
+     * @return The response containing the sent message details
+     * @throws IllegalStateException if the chat session is not found
+     */
     @Override
     public SendMessageResponse sendMessage(SendMessageRequest request) {
         log.info(SENDING_MESSAGE_FOR_SESSION, request.getSessionId());
@@ -63,6 +70,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         return mapper.toSendMessageResponse(updatedMessage);
     }
 
+    /**
+     * Builds and saves a ChatMessage entity.
+     *
+     * @param session The chat session to which the message belongs
+     * @param message The content of the message
+     * @return The saved ChatMessage entity
+     */
     private ChatMessage buildChatMessageAndSave(ChatSession session, String message){
         ChatMessage chatMessage = ChatMessage.builder()
                 .session(session)
@@ -73,6 +87,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         return messageRepository.save(chatMessage);
     }
 
+    /**
+     * Retrieves all messages for a specific chat session.
+     *
+     * @param sessionId The ID of the chat session
+     * @return A list of messages in the specified chat session
+     * @throws IllegalStateException if the chat session is not found
+     */
     @Override
     public List<SendMessageResponse> getMessagesBySession(String sessionId) {
         ChatSession session = sessionRepository.findById(sessionId)
@@ -83,6 +104,13 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Searches messages based on a query and optional session ID.
+     *
+     * @param query     The search query (optional)
+     * @param sessionId The ID of the chat session (optional)
+     * @return A list of messages matching the search criteria
+     */
     @Override
     public List<ChatMessage> search(String query, String sessionId) {
         return StringUtils.isNotBlank(sessionId)  ? messageRepository.findBySessionIdOrderByCreatedAtAsc(sessionId) : messageRepository.findByContentContainingIgnoreCaseOrderByCreatedAtAsc(query);

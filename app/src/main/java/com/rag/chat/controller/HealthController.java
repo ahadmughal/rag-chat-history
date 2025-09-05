@@ -20,6 +20,11 @@ public class HealthController {
         this.healthEndpoint = healthEndpoint;
     }
 
+    /**
+     * Health check endpoint to verify if the application is running.
+     *
+     * @return ResponseEntity with health status
+     */
     @GetMapping("/health")
     public ResponseEntity<?> health() {
         HealthComponent healthComponent = healthEndpoint.health();

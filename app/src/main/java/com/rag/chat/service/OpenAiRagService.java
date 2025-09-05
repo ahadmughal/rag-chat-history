@@ -20,10 +20,21 @@ public class OpenAiRagService {
 
     private final OpenAiService openAiService;
 
+    /**
+     * Constructor to initialize OpenAiService with the provided API key and a timeout duration.
+     *
+     * @param apiKey The OpenAI API key for authentication
+     */
     public OpenAiRagService(@Value("${openai.api.key}") String apiKey) {
         this.openAiService = new OpenAiService(apiKey, Duration.ofSeconds(30));
     }
 
+    /**
+     * Generates a response from the OpenAI API based on the user's message.
+     *
+     * @param userMessage The message input from the user
+     * @return The generated response from the OpenAI API
+     */
     public String generateResponse(String userMessage) {
         try {
             ChatCompletionRequest request = ChatCompletionRequest.builder()
