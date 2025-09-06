@@ -32,7 +32,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private List<String> apiKeys;
 
-    private static final int MAX_REQUESTS = 5;
+    private static final int MAX_REQUESTS = 60;
     private static final long TIME_WINDOW_MS = 60 * 1000; // 1 minute
 
     private final Map<String, RateLimitInfo> rateLimitMap = new ConcurrentHashMap<>();
