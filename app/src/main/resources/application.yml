@@ -1,5 +1,9 @@
 app:
-  api-key: my-super-secret-key
+  api:
+    keys:
+      - key-1111111111111111
+      - key-2222222222222222
+      - key-3333333333333333
 
 server:
   port: 8989
