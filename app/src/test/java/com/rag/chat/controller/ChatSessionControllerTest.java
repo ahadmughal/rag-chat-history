@@ -39,7 +39,7 @@ class ChatSessionControllerTest {
         when(response.getSessionId()).thenReturn("12345");
         when(response.getSessionName()).thenReturn("Test Session");
         when(chatSessionService.createSession(request)).thenReturn(response);
-        ChatSessionResponse result = chatSessionController.createSession(request, httpRequest);
+        ChatSessionResponse result = chatSessionController.createSession(request);
         assertNotNull(result);
         assertEquals("12345", result.getSessionId());
         assertEquals("Test Session", result.getSessionName());
@@ -51,10 +51,10 @@ class ChatSessionControllerTest {
     void testCreateSession_Exception() {
         ChatSessionRequest request = new ChatSessionRequest();
         request.setSessionName("Test Session");
-        when(chatSessionService.createSession(request)).thenThrow(new RuntimeException("Error creating session"));
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            chatSessionController.createSession(request, httpRequest);
-        });
+        when(chatSessionService.createSession(request))
+                .thenThrow(new RuntimeException("Error creating session"));
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> chatSessionController.createSession(request));
         assertEquals("Error creating session", exception.getMessage());
         verify(chatSessionService, times(1)).createSession(request);
         assertNull(MDC.get("REQUEST_ID_KEY"));

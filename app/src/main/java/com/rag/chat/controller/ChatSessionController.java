@@ -40,21 +40,14 @@ public class ChatSessionController {
      */
     @Operation(summary = "Create a new chat session")
     @PostMapping("/create")
-    public ChatSessionResponse createSession(@RequestBody ChatSessionRequest request,
-                                             HttpServletRequest httpRequest) {
+    public ChatSessionResponse createSession(@RequestBody ChatSessionRequest request) {
         String requestId = UUID.randomUUID().toString();
         MDC.put(REQUEST_ID_KEY, requestId);
         log.info(CREATE_SESSION_REQUEST, request.getSessionName());
-        try {
-            ChatSessionResponse response = chatSessionService.createSession(request);
-            log.info(SESSION_CREATED_SUCCESSFULLY, response.getSessionId(), response.getSessionId());
-            return response;
-        } catch (Exception e) {
-            log.error(ERROR_CREATING_SESSION, e.getMessage(), e);
-            throw e;
-        } finally {
-            MDC.clear();
-        }
+        ChatSessionResponse response = chatSessionService.createSession(request);
+        log.info(SESSION_CREATED_SUCCESSFULLY, response.getSessionId(), response.getSessionName());
+        MDC.clear();
+        return response;
     }
 
     /** Update the name of an existing chat session

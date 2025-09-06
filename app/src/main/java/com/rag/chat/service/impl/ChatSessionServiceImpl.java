@@ -50,7 +50,7 @@ public class ChatSessionServiceImpl implements ChatSessionService {
         }
         deactivateOldSessions();
         String sessionId = UUID.randomUUID().toString();
-        ChatSession chatSession = buildSessionRequest(sessionId,  request.getSessionName());
+        ChatSession chatSession = buildSessionRequest(sessionId, request.getSessionName());
         logger.info(CREATED_NEW_CHAT_SESSION, sessionId, request.getSessionName());
         return chatSessionMapper.toResponse(chatSession);
     }
