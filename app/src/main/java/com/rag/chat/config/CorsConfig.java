@@ -16,7 +16,7 @@ public class CorsConfig {
                 registry.addMapping("/**")
                         .allowedOrigins("http://localhost:4200") // frontend URL
                         .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
+                        .allowedHeaders("X-API-KEY", "Content-Type", "Accept", "Authorization")
                         .exposedHeaders("*")
                         .allowCredentials(true);
             }

@@ -35,14 +35,14 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         log.info(CHECKING_PATH_FILTER, path);
 
+        // Skip Swagger + OPTIONS
         boolean shouldSkip =
-                // Handle both with and without context path
-                path.startsWith("/swagger-ui") ||
+                "OPTIONS".equalsIgnoreCase(request.getMethod()) ||
+                        path.startsWith("/swagger-ui") ||
                         path.startsWith("/v3/api-docs") ||
                         path.startsWith("/webjars") ||
                         path.startsWith("/swagger-resources") ||
                         path.equals("/swagger-ui.html") ||
-                        // Also handle with context path (just in case)
                         path.startsWith("/rag-chat/swagger-ui") ||
                         path.startsWith("/rag-chat/v3/api-docs") ||
                         path.startsWith("/rag-chat/webjars") ||
