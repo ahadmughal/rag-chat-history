@@ -1,0 +1,46 @@
+app:
+  api:
+    keys:
+      - key-1111111111111111
+      - key-2222222222222222
+      - key-3333333333333333
+
+server:
+  port: 8989
+  servlet:
+    context-path: /rag-chat
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/rag_chat_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      initialization-fail-timeout: 60000   # wait 60s before failing
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: none   # Flyway manages schema
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: false
+    baseline-on-migrate: false
+    locations: classpath:db/migration
+
+logging:
+  level:
+    org.springframework.security: TRACE
+    org.springframework.security.web: TRACE
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    com.rag.chat: DEBUG
+
+openai.api.key: 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
