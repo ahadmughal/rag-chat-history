@@ -31,4 +31,13 @@ public class ChatSessionMapper {
                 .build();
     }
 
+    public ChatSessionResponse toResponse3(ChatSession session) {
+        return ChatSessionResponse.builder()
+                .sessionId(session.getId())
+                .sessionName(session.getSessionName())
+                .active(session.getActive())
+                .favorite(session.isFavorite())
+                .build();
+    }
+
 }
