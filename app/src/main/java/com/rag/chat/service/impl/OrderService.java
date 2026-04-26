@@ -1,14 +1,27 @@
 package com.rag.chat.service.impl;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Service for processing customer orders.
- * MIX OF GOOD CODE + ISSUES — for AI-MR-Reviewer testing.
+ * Service for processing customer orders. Handles order creation, payment lifecycle,
+ * shipping, cancellation, and refunds.
  */
 public class OrderService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
+    private static final String STATUS_PAID = "PAID";
+    private static final String STATUS_SHIPPED = "SHIPPED";
+    private static final String STATUS_CANCELLED = "CANCELLED";
 
     private final OrderRepository repo;
     private final PaymentGateway payments;
@@ -20,42 +33,72 @@ public class OrderService {
         this.notifier = notifier;
     }
 
-    // === GOOD: clean Optional usage, single responsibility ===
+    /**
+     * Looks up an order by its id.
+     *
+     * @param orderId the order id
+     * @return the order if found, otherwise empty
+     */
     public Optional<Order> findOrder(long orderId) {
         return repo.findById(orderId);
     }
 
-    // === ISSUE (HIGH): String comparison with == instead of .equals() ===
+    /**
+     * Returns true if the order has been paid.
+     *
+     * @param order the order to check
+     * @return true if status is PAID
+     */
     public boolean isPaid(Order order) {
-        if (order.getStatus() == "PAID") {
-            return true;
-        }
-        return false;
+        return STATUS_PAID.equals(order.getStatus());
     }
 
-    // === ISSUE (HIGH): Thread.sleep used to "wait" for payment ===
-    public void waitForPaymentConfirmation(long orderId) {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    /**
+     * Asynchronously checks payment status after a delay, without blocking the caller thread.
+     * Replaces the previous Thread.sleep-based wait with a non-blocking scheduled completion.
+     *
+     * @param orderId the order id
+     * @return a future that completes with true if the order is paid after the delay
+     */
+    public CompletableFuture<Boolean> waitForPaymentConfirmation(long orderId) {
+        return CompletableFuture.supplyAsync(
+                () -> isPaid(repo.findById(orderId).orElseThrow()),
+                CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS)
+        );
     }
 
-    // === ISSUE (HIGH): broad catch (Exception) hides real problems ===
-    // === ISSUE (HIGH): printStackTrace used instead of structured logging ===
+    /**
+     * Issues a refund for the given order.
+     *
+     * @param orderId the order to refund
+     * @return true if the refund succeeded
+     */
     public boolean refund(long orderId) {
         try {
             Order order = repo.findById(orderId).orElseThrow();
             payments.refund(order.getPaymentId(), order.getTotal());
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NoSuchElementException e) {
+            log.warn("Refund requested for unknown order {}", orderId);
+            return false;
+        } catch (PaymentException e) {
+            log.error("Payment gateway rejected refund for order {}", orderId, e);
             return false;
         }
     }
 
-    // === ISSUE (MID): too many parameters (>5) ===
+    /**
+     * Creates a new order for the given customer.
+     *
+     * @param customerId       the customer placing the order
+     * @param items            line items
+     * @param shippingAddress  destination address
+     * @param billingAddress   billing address
+     * @param couponCode       optional coupon code, may be null
+     * @param currency         ISO 4217 currency code
+     * @param notes            optional customer notes
+     * @return the persisted order
+     */
     public Order createOrder(long customerId, List<OrderItem> items, String shippingAddress,
                              String billingAddress, String couponCode, String currency, String notes) {
         double subtotal = items.stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
@@ -63,14 +106,24 @@ public class OrderService {
         return repo.save(order);
     }
 
-    // === ISSUE (MID): new Date() — should use java.time.Instant or LocalDateTime ===
+    /**
+     * Marks the order as shipped at the current instant.
+     *
+     * @param orderId the order id
+     */
     public void markShipped(long orderId) {
         Order order = repo.findById(orderId).orElseThrow();
-        order.setShippedAt(new Date());
+        order.setShippedAt(Date.from(Instant.now()));
         repo.save(order);
     }
 
-    // === GOOD: clean stream + functional style, immutable result ===
+    /**
+     * Computes the order total including tax.
+     *
+     * @param items   line items
+     * @param taxRate tax rate as a decimal (e.g. 0.08 for 8%)
+     * @return the total amount
+     */
     public double calculateOrderTotal(List<OrderItem> items, double taxRate) {
         double subtotal = items.stream()
                 .mapToDouble(item -> item.getPrice() * item.getQuantity())
@@ -78,23 +131,33 @@ public class OrderService {
         return subtotal * (1 + taxRate);
     }
 
-    // === GOOD: proper exception handling, descriptive errors, no swallowing ===
+    /**
+     * Cancels the order and notifies the customer.
+     *
+     * @param orderId the order id
+     * @param reason  free-text cancellation reason
+     * @throws IllegalArgumentException if the order does not exist
+     * @throws IllegalStateException    if the order has already shipped
+     */
     public void cancelOrder(long orderId, String reason) {
         Order order = repo.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found: " + orderId));
-        if (order.getStatus().equals("SHIPPED")) {
+        if (STATUS_SHIPPED.equals(order.getStatus())) {
             throw new IllegalStateException("Cannot cancel a shipped order: " + orderId);
         }
-        order.setStatus("CANCELLED");
+        order.setStatus(STATUS_CANCELLED);
         order.setCancellationReason(reason);
         repo.save(order);
         notifier.sendCancellationEmail(order.getCustomerId(), orderId);
     }
 
-    // === ISSUE (LOW): TODO comment left in code ===
-    // TODO: support partial refunds in next sprint
+    /**
+     * Returns true if the order is in a refundable state.
+     *
+     * @param order the order to check
+     * @return true if the order can be refunded
+     */
     public boolean canRefund(Order order) {
-        return order.getStatus().equals("PAID") || order.getStatus().equals("SHIPPED");
+        return STATUS_PAID.equals(order.getStatus()) || STATUS_SHIPPED.equals(order.getStatus());
     }
 }
-
